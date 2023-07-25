@@ -1,3 +1,3 @@
-lua myluamodule = require("myluamodule")
+lua myluamodule = require("neobook")
 
-lua require'myluamodule'.setup()
+lua require'neobook'.setup()
