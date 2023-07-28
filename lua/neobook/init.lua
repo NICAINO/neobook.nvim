@@ -4,13 +4,22 @@
 local renderer = require("../neobook/renderer")
 local inspect = require("../neobook/inspect")
 local utils = require("../neobook/utils")
---
+
+Settings = {}
+Notebook_state = {}
+Render_state = {
+	buffers = {},
+	windows = { "", "", "", "" },
+	window_handles = { nil, nil, nil, nil },
+}
+
 -- require'myluamodule'.setup({p1 = "value1"})
 local function setup(parameters)
+	Settings = {
+		split_num = 4,
+	}
 	Notebook_state = {}
 end
-
-Notebook_state = {}
 
 function global_lua_function()
 	print("nvim-example-lua-plugin.myluamodule.init global_lua_function: hello")
@@ -28,7 +37,10 @@ vim.api.nvim_create_user_command("Neobook", function()
 	Notebook_state.kernel_language = metadata.language_info.name
 	-- vim.treesitter.language.register(Notebook_state.kernel_language, "notebook")
 	print(inspect(Notebook_state.kernel_language))
-	renderer.generate_float(nil, Notebook_state)
+	local old_window = vim.api.nvim_get_current_win()
+	renderer.render_split(Notebook_state, Render_state)
+	vim.api.nvim_win_close(old_window, false)
+	-- renderer.generate_float(nil, Notebook_state)
 end, {})
 
 -- keymappi-- Create a named autocmd group for autocmds so that if this file/plugin gets reloaded, the existing
@@ -46,8 +58,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
 })
 
 vim.api.nvim_create_user_command("Test", function()
-	print(inspect(vim.api.nvim_get_namespaces()))
-	print(inspect(vim.api.nvim_buf_get_extmarks(0, 13, 0, 2, {})))
+	-- renderer.spawn_split({}, {})
 end, {})
 
 -- Returning a Lua table at the end allows fine control of the symbols that
